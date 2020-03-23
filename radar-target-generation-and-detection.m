@@ -18,7 +18,6 @@ c = 3e8
 % remains contant
 range = 110
 vel = -20
-
 max_range = 200
 range_res = 1
 max_vel = 100 % m/s
@@ -82,7 +81,6 @@ end
 
 %% RANGE MEASUREMENT
 
-
  % *%TODO* :
 %reshape the vector into Nr*Nd array. Nr and Nd here would also define the size of
 %Range and Doppler FFT respectively.
@@ -105,18 +103,18 @@ signal_fft = signal_fft(1 : Nr/2-1);
 
 
 %plotting the range
-%figure ('Name','Range from First FFT')
-%subplot(2,1,1)
+figure ('Name','Range from First FFT')
+#subplot(2,1,1)
 
  % *%TODO* :
  % plot FFT output 
-%plot(signal_fft);
-%axis ([0 180 0 1]);
-%title('Range from First FFT');
-%ylabel('Amplitude (Normalized)');
-%xlabel('Range [m]');
-%axis ([0 200 0 1]);
-
+plot(signal_fft);
+axis ([0 180 0 1]);
+title('Range from First FFT');
+ylabel('Amplitude (Normalized)');
+xlabel('Range [m]');
+axis ([0 200 0 1]);
+print -djpg range_1st_fft.jpg
 
 %% RANGE DOPPLER RESPONSE
 % The 2D FFT implementation is already provided here. This will run a 2DFFT
