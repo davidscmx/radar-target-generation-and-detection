@@ -1,19 +1,4 @@
 
-<div class="content">
-
-## Table of Contents
-
-<div>
-
-- [Radar Specifications]
-- [User Defined Range and Velocity of target]
-- [FMCW Waveform Generation]
-- [Signal generation and Moving Target simulation]
-- [RANGE MEASUREMENT]
-- [RANGE DOPPLER RESPONSE]
-- [CFAR implementation]
-
-</div>
 
 ## Radar Specifications
 
@@ -153,3 +138,45 @@ axis ([0 200 0 1]);
 
 ![](./images/range_1st_fft.jpg/)
 
+
+The 2D FFT implementation is already provided here. This will run a 2DFFT on the mixed
+signal (beat signal) output and generate a range doppler map.
+CFAR is applied to the generated RDM
+
+
+
+```{.codeinput}
+% Range Doppler Map Generation.
+
+% The output of the 2D FFT is an image that has reponse in the range and
+% doppler FFT bins. So, it is important to convert the axis from bin sizes
+% to range and doppler based on their Max values.
+
+Mix=reshape(Mix,[Nr,Nd]);
+
+% 2D FFT using the FFT size for both dimensions.
+signal_fft2 = fft2(Mix,Nr,Nd);
+
+% Taking just one side of signal from Range dimension.
+signal_fft2 = signal_fft2(1:Nr/2,1:Nd);
+signal_fft2 = fftshift (signal_fft2);
+
+RDM = abs(signal_fft2);
+RDM = 10*log10(RDM) ;
+
+%use the surf function to plot the output of 2DFFT and to show axis in both
+%dimensions
+
+doppler_axis = linspace(-100,100,Nd);
+range_axis = linspace(-200,200,Nr/2)*((Nr/2)/400);
+
+figure,surf(doppler_axis,range_axis,RDM);
+title('Amplitude and Range From FFT2');
+xlabel('Speed');
+ylabel('Range');
+zlabel('Amplitude');
+
+```
+
+![](./images/range_1st_fft.jpg/)
+![](./images/range_2nd_fft.jpg/)
