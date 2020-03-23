@@ -1,7 +1,7 @@
 clear all
 clc;
-pkg load control
-pkg load signal
+%pkg load control % octave packages
+%pkg load signal %octave packages
 
 %% Radar Specifications 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%

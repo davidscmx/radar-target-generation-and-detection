@@ -25,7 +25,7 @@ max_vel = 100 % m/s
 ```
 
 ## FMCW Waveform Generation 
-https://github.com/davidsosa/radar-target-generation-and-detection/blob/master/radar-target-generation-and-detection.m#L19
+https://github.com/davidsosa/radar-target-generation-and-detection/blob/master/radar-target-generation-and-detection.m#L30
 
 ```{.codeinput}
 % *%TODO* :
@@ -180,3 +180,101 @@ zlabel('Amplitude');
 
 ![](./images/range_1st_fft.jpg/)
 ![](./images/range_2nd_fft.jpg/)
+
+CFAR implementation {#8}
+
+---
+
+```{.codeinput}
+%Slide Window through the complete Range Doppler Map
+
+% *%TODO* :
+%Select the number of Training Cells in both the dimensions.
+n_train_cells = 10;
+n_train_bands = 8;
+
+% *%TODO* :
+%Select the number of Guard Cells in both dimensions around the Cell under 
+%test (CUT) for accurate estimation
+n_guard_cells = 4;
+n_guard_bands = 4;
+
+% *%TODO* :
+% offset the threshold by SNR value in dB
+offset = 1.4;
+
+% *%TODO* :
+%Create a vector to store noise_level for each iteration on training cells
+noise_level = zeros(1,1);
+
+
+% *%TODO* :
+%design a loop such that it slides the CUT across range doppler map by
+%giving margins at the edges for Training and Guard Cells.
+%For every iteration sum the signal level within all the training
+%cells. To sum convert the value from logarithmic to linear using db2pow
+%function. Average the summed values for all of the training%cells used. After averaging convert it back to logarithimic using pow2db.
+%Further add the offset to it to determine the threshold. Next, compare the
+%signal under CUT with this threshold. If the CUT level > threshold assign
+%it a value of 1, else equate it to 0.
+
+
+   % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
+   % CFAR
+
+RDM = RDM / max(RDM(:));
+
+
+for row0 = n_train_cells + n_guard_cells + 1 : (Nr/2) - (n_train_cells + n_guard_cells)
+  for col0 = n_train_bands + n_guard_bands + 1 : (Nd) - (n_train_bands + n_guard_bands)
+    %Create a vector to store noise_level for each iteration on training cells
+    noise_level = zeros(1, 1);
+
+    for row1 = row0 - (n_train_cells + n_guard_cells) : row0 + (n_train_cells + n_guard_cells)
+      for col1 = col0 - (n_train_bands + n_guard_bands) : col0 + (n_train_bands + n_guard_bands)
+        if (abs(row0 - row1) > n_guard_cells || abs(col0 - col1) > n_guard_bands)
+          noise_level = noise_level + db2pow(RDM(row1, col1));
+        end
+      end
+    end
+
+    % Calculate threshold from noise average then add the offset
+    thresh = pow2db(noise_level / (2 * (n_train_bands + n_guard_bands + 1) * 2 * (n_train_cells + n_guard_cells + 1) - (n_guard_cells * n_guard_bands) - 1));
+    thresh = thresh + offset;
+
+    CUT = RDM(row1,col1);
+
+    if (CUT < thresh)
+      RDM(row0, col0) = 0;
+    else
+      RDM(row0, col0) = 1;
+    end
+
+  end
+end
+
+
+% *%TODO* :
+% The process above will generate a thresholded block, which is smaller 
+%than the Range Doppler Map as the CUT cannot be located at the edges of
+%matrix. Hence,few cells will not be thresholded. To keep the map size same
+% set those values to 0. 
+ 
+RDM(RDM~=0 & RDM~=1) = 0;
+
+% *%TODO* :
+%display the CFAR output using the Surf function like we did for Range
+%Doppler Response output.
+figure('Name', 'CA-CFAR Filtered RDM')
+surf(doppler_axis, range_axis, RDM);
+colorbar;
+title( 'CA-CFAR Filtered RDM surface plot');
+xlabel('Speed');
+ylabel('Range');
+zlabel('Normalized Amplitude');
+
+view(315, 45);
+
+```
+
+![](./images/final.png)
