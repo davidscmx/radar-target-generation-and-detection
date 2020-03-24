@@ -207,7 +207,6 @@ offset = 1.4;
 %Create a vector to store noise_level for each iteration on training cells
 noise_level = zeros(1,1);
 
-
 % *%TODO* :
 %design a loop such that it slides the CUT across range doppler map by
 %giving margins at the edges for Training and Guard Cells.
@@ -219,11 +218,10 @@ noise_level = zeros(1,1);
 %it a value of 1, else equate it to 0.
 
 
-   % Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
-   % CFAR
+% Use RDM[x,y] as the matrix from the output of 2D FFT for implementing
+% CFAR
 
 RDM = RDM / max(RDM(:));
-
 
 for row0 = n_train_cells + n_guard_cells + 1 : (Nr/2) - (n_train_cells + n_guard_cells)
   for col0 = n_train_bands + n_guard_bands + 1 : (Nd) - (n_train_bands + n_guard_bands)

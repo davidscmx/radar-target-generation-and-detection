@@ -114,7 +114,6 @@ title('Range from First FFT');
 ylabel('Amplitude (Normalized)');
 xlabel('Range [m]');
 axis ([0 200 0 1]);
-print -djpg range_1st_fft.jpg
 
 %% RANGE DOPPLER RESPONSE
 % The 2D FFT implementation is already provided here. This will run a 2DFFT
@@ -241,9 +240,8 @@ title( 'CA-CFAR Filtered RDM surface plot');
 xlabel('Speed');
 ylabel('Range');
 zlabel('Normalized Amplitude');
-
 view(315, 45);
-print -djpg range_2nd_fft_afterCFAR.jpg
+
 
  
  
