@@ -1,5 +1,37 @@
 
 
+
+## Installation
+
+Required Packages:
+  Ubuntu 22.04
+  Octave 7.4.0
+  Control Systems Toolbox
+  Signal Processing Toolbox
+
+
+```
+git clone https://github.com/davidsosa/radar-target-generation-and-detection.git
+```
+
+Install Octave and Required Packages for Control and Signal Processing Toolboxes
+
+```
+sudo apt-add-repository ppa:octave/stable
+sudo apt update
+sudo apt-get install octave octave-control octave-signal
+sudo apt install gfortran liboctave-dev libopenblas-dev
+sudo apt install build-essential # Install the build-essential package
+```
+
+Inside of Octave:
+
+```
+pkg install -forge control
+pkg install -forge signal
+```
+
+
 ## Radar Specifications
 
 ```{.codeinput}
@@ -9,7 +41,7 @@
 % Max Velocity = 100 m/s
 ```
 
-## User Defined Range and Velocity of target 
+## User Defined Range and Velocity of target
 
 https://github.com/davidsosa/radar-target-generation-and-detection/blob/master/radar-target-generation-and-detection.m#L19
 
@@ -24,7 +56,7 @@ range_res = 1
 max_vel = 100 % m/s
 ```
 
-## FMCW Waveform Generation 
+## FMCW Waveform Generation
 https://github.com/davidsosa/radar-target-generation-and-detection/blob/master/radar-target-generation-and-detection.m#L30
 
 ```{.codeinput}
@@ -39,10 +71,10 @@ https://github.com/davidsosa/radar-target-generation-and-detection/blob/master/r
 % 5 to 6 times the round trip time. This example uses a factor of 5.5.
 
 B = c / (2*range_res)
-Tchirp = 5.5 * 2 * (max_range/c)  
+Tchirp = 5.5 * 2 * (max_range/c)
 slope = B/Tchirp
 
-%Operating carrier frequency of Radar 
+%Operating carrier frequency of Radar
 fc= 77e9;             %carrier freq
 
 %The number of chirps in one sequence. Its ideal to have 2^ value for the ease of running the FFT
@@ -66,26 +98,26 @@ r_t = zeros(1, length(t));
 td = zeros(1, length(t));
 ```
 
-## Signal generation and Moving Target simulation 
+## Signal generation and Moving Target simulation
 https://github.com/davidsosa/radar-target-generation-and-detection/blob/master/radar-target-generation-and-detection.m#L61
 
 Running the radar scenario over the time.
 
 ```{.codeinput}
 
-for i=1:length(t)         
-  % *%TODO* 
-  %For each time stamp update the Range of the Target for constant velocity. 
+for i=1:length(t)
+  % *%TODO*
+  %For each time stamp update the Range of the Target for constant velocity.
   r_t(i) = range + (vel*t(i));
   td(i) = (2 * r_t(i)) / c;
 
   % *%TODO* :
   %For each time sample we need update the transmitted and
-  %received signal. 
+  %received signal.
 
   Tx(i)   = cos(2*pi*(fc*t(i) + (slope*t(i)^2)/2 ) );
   Rx(i)   = cos(2*pi*(fc*(t(i) -td(i)) + (slope * (t(i)-td(i))^2)/2 ) );
-    
+
   % *%TODO* :
   %Now by mixing the Transmit and Receive generate the beat signal
   %This is done by element wise matrix multiplication of Transmit and
@@ -96,7 +128,7 @@ end
 
 ```
 
-## RANGE MEASUREMENT 
+## RANGE MEASUREMENT
 https://github.com/davidsosa/radar-target-generation-and-detection/blob/master/radar-target-generation-and-detection.m#L82
 
 
@@ -126,7 +158,7 @@ plotting the range
 figure ('Name','Range from First FFT')
 
  % *%TODO* :
-% plot FFT output 
+% plot FFT output
 plot(signal_fft);
 axis ([0 180 0 1]);
 title('Range from First FFT');
@@ -194,7 +226,7 @@ n_train_cells = 10;
 n_train_bands = 8;
 
 % *%TODO* :
-%Select the number of Guard Cells in both dimensions around the Cell under 
+%Select the number of Guard Cells in both dimensions around the Cell under
 %test (CUT) for accurate estimation
 n_guard_cells = 4;
 n_guard_bands = 4;
@@ -253,11 +285,11 @@ end
 
 
 % *%TODO* :
-% The process above will generate a thresholded block, which is smaller 
+% The process above will generate a thresholded block, which is smaller
 %than the Range Doppler Map as the CUT cannot be located at the edges of
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
-% set those values to 0. 
- 
+% set those values to 0.
+
 RDM(RDM~=0 & RDM~=1) = 0;
 
 % *%TODO* :

@@ -1,9 +1,12 @@
-clear all
-clc;
-%pkg load control % octave packages
-%pkg load signal 
+clear all % Clear the workspace
+clc; % Clear the command window
 
-%% Radar Specifications 
+% Octave packages (included by default in Matlab)
+pkg load control % Control Systems Toolbox
+pkg load signal % Signal Processing Toolbox
+
+
+%% Radar Specifications
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Frequency of operation = 77GHz
 % Max Range = 200m
@@ -28,17 +31,17 @@ max_vel = 100 % m/s
 % Calculate the Bandwidth (B), Chirp Time (Tchirp) and Slope (slope) of the FMCW
 % chirp using the requirements above.
 B = c / (2*range_res)
-Tchirp = 5.5 * 2 * (max_range/c)  
+Tchirp = 5.5 * 2 * (max_range/c)
 slope = B/Tchirp
 
-%Operating carrier frequency of Radar 
+%Operating carrier frequency of Radar
 fc= 77e9;             %carrier freq
-                                                          
+
 %The number of chirps in one sequence. Its ideal to have 2^ value for the ease of running the FFT
-%for Doppler Estimation. 
+%for Doppler Estimation.
 Nd=128;                   % #of doppler cells OR #of sent periods % number of chirps
 
-%The number of samples on each chirp. 
+%The number of samples on each chirp.
 Nr=1024;                  %for length of time OR # of range cells
 
 % Timestamp for running the displacement scenario for every sample on each
@@ -55,21 +58,21 @@ r_t=zeros(1,length(t));
 td=zeros(1,length(t));
 
 %% Signal generation and Moving Target simulation
-% Running the radar scenario over the time. 
+% Running the radar scenario over the time.
 
-for i=1:length(t)         
-  % *%TODO* 
-  %For each time stamp update the Range of the Target for constant velocity. 
+for i=1:length(t)
+  % *%TODO*
+  %For each time stamp update the Range of the Target for constant velocity.
   r_t(i) = range + (vel*t(i));
   td(i) = (2 * r_t(i)) / c;
 
   % *%TODO* :
   %For each time sample we need update the transmitted and
-  %received signal. 
+  %received signal.
 
   Tx(i)   = cos(2*pi*(fc*t(i) + (slope*t(i)^2)/2 ) );
   Rx(i)   = cos(2*pi*(fc*(t(i) -td(i)) + (slope * (t(i)-td(i))^2)/2 ) );
-    
+
   % *%TODO* :
   %Now by mixing the Transmit and Receive generate the beat signal
   %This is done by element wise matrix multiplication of Transmit and
@@ -103,7 +106,7 @@ signal_fft = signal_fft(1 : Nr/2-1);
 %plotting the range
 figure ('Name','Range from First FFT')
 % *%TODO* :
-% plot FFT output 
+% plot FFT output
 plot(signal_fft);
 axis ([0 180 0 1]);
 title('Range from First FFT');
@@ -156,7 +159,7 @@ n_train_cells = 10;
 n_train_bands = 8;
 
 % *%TODO* :
-%Select the number of Guard Cells in both dimensions around the Cell under 
+%Select the number of Guard Cells in both dimensions around the Cell under
 %test (CUT) for accurate estimation
 n_guard_cells = 4;
 n_guard_bands = 4;
@@ -217,11 +220,11 @@ end
 
 
 % *%TODO* :
-% The process above will generate a thresholded block, which is smaller 
+% The process above will generate a thresholded block, which is smaller
 %than the Range Doppler Map as the CUT cannot be located at the edges of
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
-% set those values to 0. 
- 
+% set those values to 0.
+
 RDM(RDM~=0 & RDM~=1) = 0;
 
 % *%TODO* :
@@ -235,7 +238,3 @@ xlabel('Speed');
 ylabel('Range');
 zlabel('Normalized Amplitude');
 view(315, 45);
-
-
- 
- 
